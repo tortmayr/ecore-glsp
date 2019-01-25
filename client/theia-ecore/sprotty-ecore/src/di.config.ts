@@ -5,47 +5,14 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { 
-    boundsModule, 
-    buttonModule, 
-    configureModelElement, 
-    configureViewerOptions, 
-    ConsoleLogger, 
-    defaultModule, 
-    edgeEditModule, 
-    ExpandButtonView, 
-    expandModule, 
-    exportModule, 
-    fadeModule, 
-    hoverModule, 
-    HtmlRoot, 
-    HtmlRootView, 
-    LogLevel, 
-    moveModule, 
-    PolylineEdgeView, 
-    PreRenderedElement, 
-    PreRenderedView, 
-    SButton, 
-    SCompartment, 
-    SCompartmentView, 
-    SEdge, 
-    selectModule, 
-    SGraph, 
-    SGraphView, 
-    SLabel, 
-    SLabelView, 
-    SRoutingHandle, 
-    SRoutingHandleView, 
-    TYPES, 
-    undoRedoModule, 
-    viewportModule, 
-    LocalModelSource 
-} from "glsp-sprotty/lib";
 import { Container, ContainerModule } from "inversify";
-import { ClassNode, Icon, Link, EdgeWithMultiplicty } from "./model";
+import { boundsModule, buttonModule, configureModelElement, configureViewerOptions, ConsoleLogger, defaultModule, edgeEditModule, ExpandButtonView, expandModule, exportModule, fadeModule, hoverModule, HtmlRoot, HtmlRootView, LogLevel, moveModule, PolylineEdgeView, PreRenderedElement, PreRenderedView, SButton, SCompartment, SCompartmentView, SEdge, selectModule, SGraph, SGraphView, SLabel, SLabelView, SRoutingHandle, SRoutingHandleView, TYPES, undoRedoModule, viewportModule } from "sprotty/lib";
+import { ClassNode, EdgeWithMultiplicty, Icon, Link } from "./model";
 import { AggregationEdgeView, ArrowEdgeView, ClassNodeView, CompositionEdgeView, IconView, InheritanceEdgeView, LinkView } from "./views";
+import { ElkFactory, elkLayoutModule, ElkLayoutEngine } from "sprotty-elk/lib";
+import ElkConstructor from 'elkjs/lib/elk.bundled';
 
-export default (containerId: string) => {
+export default (containerId: string, withSelectionSupport: boolean) => {
     const classDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
         rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
         rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
@@ -73,12 +40,39 @@ export default (containerId: string) => {
             needsClientLayout: true,
             baseDiv: containerId
         });
-        bind('EcoreDiagramModelSource').to(LocalModelSource).inSingletonScope();
+
+        const elkFactory: ElkFactory = () => new ElkConstructor({
+            algorithms: ['layered'],
+            defaultLayoutOptions: {
+                'edgeLabels.placement': 'CENTER',
+                'edgeLabels.sideSelection': 'ALWAYS_UP'
+            }
+        });
+        bind(TYPES.IModelLayoutEngine).to(ElkLayoutEngine);
+        bind(ElkFactory).toConstantValue(elkFactory);
     });
 
     const container = new Container();
-    container.load(defaultModule, selectModule, moveModule, boundsModule, undoRedoModule,
-        viewportModule, fadeModule, hoverModule, exportModule, expandModule, buttonModule,
-        edgeEditModule, classDiagramModule);
+    const modules = [
+        defaultModule,
+        moveModule,
+        boundsModule,
+        undoRedoModule,
+        viewportModule,
+        selectModule,
+        fadeModule,
+        hoverModule,
+        exportModule,
+        expandModule,
+        buttonModule,
+        edgeEditModule,
+        classDiagramModule,
+        elkLayoutModule]
+        
+    if (withSelectionSupport) {
+        modules.push(selectModule);
+    }
+
+    container.load(...modules);
     return container;
 };

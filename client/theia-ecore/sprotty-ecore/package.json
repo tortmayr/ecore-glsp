@@ -1,6 +1,6 @@
 {
   "name": "sprotty-ecore",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "sprotty diagrams for Ecore",
   "author": "EclipseSource Muenchen GmbH",
   "license": "Apache-2.0",
@@ -10,7 +10,8 @@
     "diagram"
   ],
   "dependencies": {
-    "sprotty": "next"
+    "sprotty": "next",
+    "sprotty-elk": "next"
   },
   "devDependencies": {
     "css-loader": "^1.0.1",
