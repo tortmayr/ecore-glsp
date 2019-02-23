@@ -8,33 +8,34 @@
  * Contributors:
  * 	EclipseSource Muenchen GmbH - initial API and implementation
  ******************************************************************************/
-import { FrontendApplicationContribution, OpenHandler } from "@theia/core/lib/browser";
+import { FrontendApplicationContribution, OpenHandler, WidgetFactory } from "@theia/core/lib/browser";
 import { GLSPClientContribution } from "glsp-theia-extension/lib/browser";
 import { ContainerModule, interfaces } from "inversify";
-import { DiagramConfiguration, DiagramManager, DiagramManagerProvider } from "theia-glsp/lib";
-import { EcoreLanguage } from "../common/ecore-language";
-import { EcoreDiagramConfiguration } from "./di.config";
+import { DiagramConfiguration, DiagramManager, DiagramManagerProvider } from "sprotty-theia/lib";
+import { EcoreDiagramConfiguration } from "./ecore-diagram-configuration";
 import { EcoreDiagramManager } from "./ecore-diagram-manager.";
 import { EcoreGLClientContribution } from "./ecore-glclient-contribution";
+import { EcoreGLSPDiagramClient } from "./ecore-gslp-diagram-client";
 
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
-    
-    
     bind(EcoreGLClientContribution).toSelf().inSingletonScope()
-    bind(GLSPClientContribution).toDynamicValue(ctx => ctx.container.get(EcoreGLClientContribution)).inSingletonScope();
-    bind(DiagramConfiguration).to(EcoreDiagramConfiguration).inSingletonScope()
-    bind(DiagramManagerProvider).toProvider<DiagramManager>(context => {
-        return () => {
-            return new Promise<DiagramManager>((resolve) =>
-                resolve(context.container.get(EcoreDiagramManager))
-            )
-        }
-    }).whenTargetNamed(EcoreLanguage.DiagramType)
+    bind(GLSPClientContribution).toService(EcoreGLClientContribution);
 
+    bind(EcoreGLSPDiagramClient).toSelf().inSingletonScope()
+
+    bind(DiagramConfiguration).to(EcoreDiagramConfiguration).inSingletonScope()
     bind(EcoreDiagramManager).toSelf().inSingletonScope()
-    bind(FrontendApplicationContribution).toDynamicValue(context =>
-        context.container.get(EcoreDiagramManager))
-    bind(OpenHandler).toDynamicValue(context => context.container.get(EcoreDiagramManager))
+    bind(FrontendApplicationContribution).toService(EcoreDiagramManager)
+    bind(OpenHandler).toService(EcoreDiagramManager)
+    bind(WidgetFactory).toService(EcoreDiagramManager);
+    bind(DiagramManagerProvider).toProvider<DiagramManager>((context) => {
+        return () => {
+            return new Promise<DiagramManager>((resolve) => {
+                const diagramManager = context.container.get<EcoreDiagramManager>(EcoreDiagramManager);
+                resolve(diagramManager);
+            });
+        };
+    });
 })
 

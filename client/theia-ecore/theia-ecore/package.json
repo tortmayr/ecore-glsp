@@ -9,9 +9,9 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "latest",
+    "@theia/core": "next",
     "sprotty-ecore": "0.2.0",
-    "glsp-theia-extension": "0.1.0-next.e75f0bf1"
+    "glsp-theia-extension": "next"
   },
   "devDependencies": {
     "rimraf": "latest",

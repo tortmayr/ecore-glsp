@@ -5,50 +5,20 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { 
-    boundsModule, 
-    buttonModule, 
-    configureModelElement, 
-    configureViewerOptions, 
-    ConsoleLogger, 
-    defaultModule, 
-    edgeEditModule, 
-    ExpandButtonView, 
-    expandModule, 
-    exportModule, 
-    fadeModule, 
-    hoverModule, 
-    HtmlRoot, 
-    HtmlRootView, 
-    LogLevel, 
-    moveModule, 
-    PolylineEdgeView, 
-    PreRenderedElement, 
-    PreRenderedView, 
-    SButton, 
-    SCompartment, 
-    SCompartmentView, 
-    SEdge, 
-    selectModule, 
-    SGraph, 
-    SGraphView, 
-    SLabel, 
-    SLabelView, 
-    SRoutingHandle, 
-    SRoutingHandleView, 
-    TYPES, 
-    undoRedoModule, 
-    viewportModule, 
-    LocalModelSource 
-} from "sprotty/lib";
 import { Container, ContainerModule } from "inversify";
-import { ClassNode, Icon, Link, EdgeWithMultiplicty } from "./model";
+import {
+    boundsModule, buttonModule, configureModelElement, configureViewerOptions, ConsoleLogger, defaultModule, edgeEditModule, //
+    ExpandButtonView, expandModule, exportModule, fadeModule, hoverModule, HtmlRoot, HtmlRootView, LogLevel, modelSourceModule, moveModule, //
+    PolylineEdgeView, PreRenderedElement, PreRenderedView, routingModule, SButton, SCompartment, SCompartmentView, SEdge, selectModule, SGraph, SGraphView, //
+    SLabel, SLabelView, SRoutingHandle, SRoutingHandleView, TYPES, undoRedoModule, updateModule, viewportModule
+} from "sprotty/lib";
+import { ClassNode, EdgeWithMultiplicty, Icon, Link } from "./model";
 import { AggregationEdgeView, ArrowEdgeView, ClassNodeView, CompositionEdgeView, IconView, InheritanceEdgeView, LinkView } from "./views";
 
-export default (containerId: string, withSelectionSupport:boolean,needsServerLayout:boolean) => {
+export default (containerId: string, withSelectionSupport: boolean, needsServerLayout: boolean) => {
     const classDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
         rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
-        rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
+        rebind(TYPES.LogLevel).toConstantValue(LogLevel.warn);
         const context = { bind, unbind, isBound, rebind };
         configureModelElement(context, 'graph', SGraph, SGraphView);
         configureModelElement(context, 'node:class', ClassNode, ClassNodeView);
@@ -74,14 +44,13 @@ export default (containerId: string, withSelectionSupport:boolean,needsServerLay
             needsServerLayout,
             baseDiv: containerId
         });
-        bind('EcoreDiagramModelSource').to(LocalModelSource).inSingletonScope();
     });
 
     const container = new Container();
-    const modules=[defaultModule, moveModule, boundsModule, undoRedoModule,
-        viewportModule, fadeModule, hoverModule, exportModule, expandModule, buttonModule,
+    const modules = [defaultModule, moveModule, boundsModule, undoRedoModule, modelSourceModule, routingModule,
+        updateModule, viewportModule, fadeModule, hoverModule, exportModule, expandModule, buttonModule,
         edgeEditModule, classDiagramModule]
-    if (withSelectionSupport){
+    if (withSelectionSupport) {
         modules.push(selectModule)
     }
     container.load(...modules)

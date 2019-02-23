@@ -6,12 +6,14 @@
  */
 
 /** @jsx svg */
-import { svg }  from 'snabbdom-jsx';
-
-import { RenderingContext, RectangularNodeView, IView, PolylineEdgeView, SEdge, Point, toDegrees, SLabelView} from "sprotty/lib";
+import { injectable } from 'inversify';
+import { svg } from 'snabbdom-jsx';
 import { VNode } from "snabbdom/vnode";
-import { Icon, ClassNode, EdgeWithMultiplicty, Link } from './model';
+import { IView, Point, PolylineEdgeView, RectangularNodeView, RenderingContext, SEdge, SLabelView, toDegrees } from "sprotty/lib";
+import { ClassNode, EdgeWithMultiplicty, Icon, Link } from './model';
 
+
+@injectable()
 export class ClassNodeView extends RectangularNodeView {
     render(node: ClassNode, context: RenderingContext): VNode {
         return <g class-node={true}>
@@ -22,11 +24,15 @@ export class ClassNodeView extends RectangularNodeView {
         </g>;
     }
 }
+
+@injectable()
 export class LinkView extends SLabelView {
     render(element: Link, context: RenderingContext): VNode {
-    return <a href={element.target} target="_empty"><text class-sprotty-label={true}>{element.text}</text></a>
-            }
+        return <a href={element.target} target="_empty"><text class-sprotty-label={true}>{element.text}</text></a>
+    }
 }
+
+@injectable()
 export class IconView implements IView {
 
     render(element: Icon, context: RenderingContext): VNode {
@@ -42,6 +48,7 @@ export class IconView implements IView {
     }
 }
 
+@injectable()
 export class ArrowEdgeView extends PolylineEdgeView {
     protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const p1 = segments[segments.length - 2];
@@ -59,6 +66,8 @@ export class ArrowEdgeView extends PolylineEdgeView {
     }
 
 }
+
+@injectable()
 export class InheritanceEdgeView extends ArrowEdgeView {
     protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const p1 = segments[segments.length - 2];
@@ -68,14 +77,15 @@ export class InheritanceEdgeView extends ArrowEdgeView {
                 transform={`rotate(${angle(p2, p1)} ${p2.x} ${p2.y}) translate(${p2.x} ${p2.y})`} />,
         ]
     }
-    
+
     static readonly TARGET_CORRECTION = Math.sqrt(1 * 1 + 2.5 * 2.5)
-    
+
     protected getTargetAnchorCorrection(edge: SEdge): number {
         return ArrowEdgeView.TARGET_CORRECTION
     }
 }
 
+@injectable()
 abstract class DiamondEdgeView extends PolylineEdgeView {
     protected renderAdditionals(edge: EdgeWithMultiplicty, segments: Point[], context: RenderingContext): VNode[] {
         const p1 = segments[0]
@@ -106,11 +116,15 @@ abstract class DiamondEdgeView extends PolylineEdgeView {
         return false;
     }
 }
+
+@injectable()
 export class CompositionEdgeView extends DiamondEdgeView {
     protected isComposition(): boolean {
         return true;
     }
 }
+
+@injectable()
 export class AggregationEdgeView extends DiamondEdgeView {
     protected isAggregation(): boolean {
         return true;

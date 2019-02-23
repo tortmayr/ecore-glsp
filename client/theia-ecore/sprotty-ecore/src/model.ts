@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { boundsFeature, Expandable, expandFeature, fadeFeature, layoutableChildFeature, layoutContainerFeature, RectangularNode, SEdge, SShapeElement, SLabel } from "sprotty/lib";
+import { boundsFeature, Expandable, expandFeature, fadeFeature, layoutableChildFeature, layoutContainerFeature, RectangularNode, SEdge, SLabel, SShapeElement } from "sprotty/lib";
 
 export class ClassNode extends RectangularNode implements Expandable {
     expanded: boolean = false;
@@ -30,8 +30,8 @@ export const multiplicitySourceFeature = Symbol('multiplicitySourceFeature');
 export const multiplicityTargetFeature = Symbol('multiplicityTargetFeature');
 
 export class EdgeWithMultiplicty extends SEdge {
-    multiplicitySource:string
-    multiplicityTarget:string
+    multiplicitySource: string
+    multiplicityTarget: string
 
     hasFeature(feature: symbol) {
         return feature === multiplicitySourceFeature || feature === multiplicityTargetFeature || super.hasFeature(feature);
@@ -41,7 +41,7 @@ export class EdgeWithMultiplicty extends SEdge {
 export const linkTargetFeature = Symbol('linkTargetFeature');
 
 export class Link extends SLabel {
-    target:string;
+    target: string;
 
     hasFeature(feature: symbol) {
         return feature === linkTargetFeature || super.hasFeature(feature);
